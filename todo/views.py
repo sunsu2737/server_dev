@@ -81,6 +81,7 @@ class TaskCreate(APIView):
         return Response(
             dict(
                 msg='To-Do 생성 완료',
+                todo_id=task.id,
                 name=task.name, 
                 start_date=task.start_date.strftime('%Y-%m-%d'),
                 end_date=task.end_date
@@ -89,16 +90,35 @@ class TaskCreate(APIView):
 class TaskSelect(APIView):
     def post(self, request):
         user_id = request.data.get('user_id','')
+        page_number = request.data.get('page_number','')
+
+
 
         tasks= Task.objects.filter(user_id=user_id)
+        
+
+        is_last_page=True
+        if page_number is not None and page_number>=0:
+            if tasks.count()<=10:
+                pass
+            elif tasks.count()<=(1+page_number)*10:
+                tasks = tasks[page_number*10:]
+            else:
+                tasks = tasks[page_number*10:(page_number+1)*10]
+                is_last_page=False
+        
         task_list=[]
+
+
         for task in tasks:
             task_list.append(
                 dict(
+                    user_id=user_id,
                     name=task.name,
                     start_date=task.start_date,
                     end_date=task.end_date,
                     state=task.state,
+                    done=task.done,
                 )
             )
-        return Response(dict(tasks=task_list))
+        return Response(dict(tasks=task_list, is_last_page=is_last_page))
