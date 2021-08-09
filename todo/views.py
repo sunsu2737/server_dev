@@ -4,17 +4,18 @@ from .models import Task
 from rest_framework.response import Response
 from datetime import datetime
 from django.shortcuts import render
+from common.common import TodoView,SuccessResponse,SuccessResponseWithData,ErrorResponse,CommonResponse
 # Create your views here.
 
 
-class ToDo(APIView):
+class ToDo(TodoView):
     def post(self, request):
-        user_id = request.data.get('user_id',"")
+
         name=request.data.get('name',"")
         end_date =request.data.get('end_date',None)
         if end_date:
             end_date = datetime.strptime(end_date,'%Y-%m-%d').date()
-        task = Task.objects.create(user_id=user_id, name=name, end_date=end_date)
+        task = Task.objects.create(user_id=self.user_id, name=name, end_date=end_date)
 
         tasks = Task.objects.all()
         task_list = []
@@ -44,7 +45,7 @@ class ToDo(APIView):
         context=dict(task_list=task_list)
         return render(request,'todo/todo.html',context=context)
 
-class TaskToggle(APIView):
+class TaskToggle(TodoView):
     def post(self,request):
         todo_id = request.data.get('todo_id','')
 
@@ -56,7 +57,7 @@ class TaskToggle(APIView):
         return Response()
 
 
-class TaskDelete(APIView):
+class TaskDelete(TodoView):
     def post(self,request):
         todo_id = request.data.get('todo_id','')
 
@@ -67,34 +68,25 @@ class TaskDelete(APIView):
         return Response()
 
 
-class TaskCreate(APIView):
+class TaskCreate(TodoView):
     def post(self,request):
-        user_id = request.data.get('user_id','')
+
         name=request.data.get('name','')
         end_date = request.data.get('end_date',None)
         todo_id=request.data.get('todo_id','')
 
         if end_date:
             end_date = datetime.strptime(end_date,'%Y-%m-%d').date()
-        task = Task.objects.create(id=todo_id,user_id=user_id, name=name, end_date=end_date)
+        task = Task.objects.create(id=todo_id,user_id=self.user_id, name=name, end_date=end_date)
 
-        return Response(
-            dict(
-                msg='To-Do 생성 완료',
-                todo_id=task.id,
-                name=task.name, 
-                start_date=task.start_date.strftime('%Y-%m-%d'),
-                end_date=task.end_date
-            )
-        )
-class TaskSelect(APIView):
+        return SuccessResponseWithData(dict(id=task.id))
+class TaskSelect(TodoView):
     def post(self, request):
-        user_id = request.data.get('user_id','')
-        page_number = request.data.get('page_number','')
+        page_number = request.data.get('page_number',5)
 
 
 
-        tasks= Task.objects.filter(user_id=user_id)
+        tasks= Task.objects.filter(user_id=self.user_id)
         
 
         is_last_page=True
@@ -113,7 +105,7 @@ class TaskSelect(APIView):
         for task in tasks:
             task_list.append(
                 dict(
-                    user_id=user_id,
+                    user_id=self.user_id,
                     name=task.name,
                     start_date=task.start_date,
                     end_date=task.end_date,
@@ -121,4 +113,7 @@ class TaskSelect(APIView):
                     done=task.done,
                 )
             )
-        return Response(dict(tasks=task_list, is_last_page=is_last_page))
+        if self.version=='1.1':
+            return SuccessResponseWithData(dict(tasks=task_list, is_last_page=is_last_page))
+        else:
+            return Response(dict(tasks=task_list, is_last_page=is_last_page))
