@@ -1,9 +1,11 @@
+from rest_framework import serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import LoginUser
 from django.contrib.auth.hashers import make_password, check_password
 from .serialize import LoginUserSerializer
 # Create your views here.
+
 
 
 
@@ -22,9 +24,18 @@ class AppLogin(APIView):
 class RegistUser(APIView):
     def post(self,request):
         serializer=LoginUserSerializer(request.data)
+
         
 
         user=LoginUser.objects.filter(user_id=serializer.data['user_id']).first()
+
+        if serializer.data['user_id'].strip()=='' or serializer.data['user_pw'].strip()=='':
+            data=dict(
+                msg="이미 존재하는 아이디입니다.",
+                user_id=user.user_id,
+                user_pw=user.user_pw
+            )
+            return Response(data)
 
         if user is not None:
             data=dict(

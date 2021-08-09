@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'login',
     'todo',
+    'corsheaders',
+
 
 ]
 
@@ -54,6 +56,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'server_dev.urls'
@@ -80,18 +84,24 @@ WSGI_APPLICATION = 'server_dev.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'HOST': '13.58.99.105',
+#         'NAME': 'server_dev',
+#         'USER': 'root',
+#         'PASSWORD': 'ghksdl13*',
+#         'PORT':'3306',
+#         'OPTIONS':{'charset':'utf8mb4'}
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'HOST': '13.58.99.105',
-        'NAME': 'server_dev',
-        'USER': 'root',
-        'PASSWORD': 'ghksdl13*',
-        'PORT':'3306',
-        'OPTIONS':{'charset':'utf8mb4'}
+    'default':{
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'db.sqlite3'
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -130,3 +140,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+CORS_ORIGIN_WHITELIST = ['http://127.0.0.1:3000' ,'http://localhost:3000'] 
+CORS_ALLOW_CREDENTIALS = True
+

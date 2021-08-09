@@ -8,7 +8,7 @@ class Task(models.Model):
     end_date = models.DateField(verbose_name='마감날짜',null=True)
     finish_date =models.DateField(verbose_name='완료날짜',null=True)
     state = models.IntegerField(verbose_name='상태',null=False,default=0)
-
+    done = models.BooleanField(verbose_name='토글',null=False,default=False)
     class meta:
         db_table='task'
         verbose_name = 'to-do 테이블'

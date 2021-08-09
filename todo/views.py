@@ -44,7 +44,27 @@ class ToDo(APIView):
         context=dict(task_list=task_list)
         return render(request,'todo/todo.html',context=context)
 
+class TaskToggle(APIView):
+    def post(self,request):
+        todo_id = request.data.get('todo_id','')
 
+        task=Task.objects.get(id=todo_id)
+
+        if task:
+            task.done =False if task.done is True else True
+            task.save()
+        return Response()
+
+
+class TaskDelete(APIView):
+    def post(self,request):
+        todo_id = request.data.get('todo_id','')
+
+        task=Task.objects.get(id=todo_id)
+
+        if task:
+            task.delete()
+        return Response()
 
 
 class TaskCreate(APIView):
@@ -52,10 +72,11 @@ class TaskCreate(APIView):
         user_id = request.data.get('user_id','')
         name=request.data.get('name','')
         end_date = request.data.get('end_date',None)
+        todo_id=request.data.get('todo_id','')
 
         if end_date:
             end_date = datetime.strptime(end_date,'%Y-%m-%d').date()
-        task = Task.objects.create(user_id=user_id, name=name, end_date=end_date)
+        task = Task.objects.create(id=todo_id,user_id=user_id, name=name, end_date=end_date)
 
         return Response(
             dict(
