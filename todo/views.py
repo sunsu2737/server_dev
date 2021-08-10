@@ -1,12 +1,12 @@
-import rest_framework
-from rest_framework.views import APIView
 from .models import Task
 from rest_framework.response import Response
 from datetime import datetime
 from django.shortcuts import render
 from common.common import TodoView,SuccessResponse,SuccessResponseWithData,ErrorResponse,CommonResponse
 # Create your views here.
+import logging
 
+logger=logging.getLogger('django')
 
 class ToDo(TodoView):
     def post(self, request):
@@ -47,8 +47,9 @@ class ToDo(TodoView):
 
 class TaskToggle(TodoView):
     def post(self,request):
+        logger.info('Task Toggle Start!!')
         todo_id = request.data.get('todo_id','')
-
+        logger.info('input data'+str(todo_id))
         task=Task.objects.get(id=todo_id)
 
         if task:
@@ -59,7 +60,10 @@ class TaskToggle(TodoView):
 
 class TaskDelete(TodoView):
     def post(self,request):
+        logger.info('Task Delete Start!!')
+
         todo_id = request.data.get('todo_id','')
+        logger.info('input data'+str(todo_id))
 
         task=Task.objects.get(id=todo_id)
 
@@ -70,22 +74,29 @@ class TaskDelete(TodoView):
 
 class TaskCreate(TodoView):
     def post(self,request):
+        logger.info('Task Create Start!!')
+
 
         name=request.data.get('name','')
         end_date = request.data.get('end_date',None)
         todo_id=request.data.get('todo_id','')
 
+        logger.info('input data'+name,str(end_date)+str(todo_id)+str(self.user_id))
+
         if end_date:
             end_date = datetime.strptime(end_date,'%Y-%m-%d').date()
         task = Task.objects.create(id=todo_id,user_id=self.user_id, name=name, end_date=end_date)
 
+        logger.info('Create'+str(task))
         return SuccessResponseWithData(dict(id=task.id))
 class TaskSelect(TodoView):
     def post(self, request):
+        logger.info('Task Create Start!!')
         page_number = request.data.get('page_number',5)
 
 
 
+        logger.info('input data'+str(self.user_id)+str(page_number))
         tasks= Task.objects.filter(user_id=self.user_id)
         
 
@@ -113,6 +124,7 @@ class TaskSelect(TodoView):
                     done=task.done,
                 )
             )
+        logger.info('Select'+str(task_list))
         if self.version=='1.1':
             return SuccessResponseWithData(dict(tasks=task_list, is_last_page=is_last_page))
         else:

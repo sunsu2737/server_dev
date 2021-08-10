@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'login',
     'todo',
     'corsheaders',
+    'common'
 
 
 ]
@@ -144,3 +145,28 @@ STATIC_URL = '/static/'
 CORS_ORIGIN_WHITELIST = ['http://127.0.0.1:3000' ,'http://localhost:3000'] 
 CORS_ALLOW_CREDENTIALS = True
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {pathname} {lineno} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR,'logs'+'/log.log'),
+            'formatter':'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
